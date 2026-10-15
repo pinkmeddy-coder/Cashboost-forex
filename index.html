@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cashboost Forex — Demo Trading</title>
+<style>
+:root{--bg:#0b1220;--panel:#111c2e;--panel2:#16243a;--text:#edf4ff;--muted:#93a4bd;--green:#39d98a;--red:#ff647c;--line:#26364e;--blue:#5b9cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px max(18px,calc((100% - 1180px)/2));border-bottom:1px solid var(--line);background:#0e1727;position:sticky;top:0;z-index:2}
+.brand{font-weight:850;font-size:21px;letter-spacing:.2px}.brand span{color:var(--green)}.tag{font-size:11px;color:#a6f3cc;border:1px solid #28664a;border-radius:20px;padding:5px 9px;white-space:nowrap}
+main{max-width:1180px;margin:auto;padding:24px 18px 40px}.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px}.intro h1{font-size:clamp(25px,4vw,36px);margin:0 0 5px}.muted{color:var(--muted)}.warning{font-size:12px;color:#ffd58a;background:#392b18;border:1px solid #614a28;padding:8px 11px;border-radius:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px;min-width:0}.label{font-size:12px;color:var(--muted);margin-bottom:7px}.value{font-size:clamp(21px,3vw,29px);font-weight:750;letter-spacing:-.5px}.green{color:var(--green)}.red{color:var(--red)}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.85fr);gap:16px}.section-title{font-size:16px;font-weight:750;margin:0 0 14px}.pair-list{display:grid;gap:9px}.pair{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel2);border:1px solid transparent;border-radius:12px;padding:13px;cursor:pointer;color:inherit;text-align:left;width:100%}.pair.active{border-color:var(--blue);background:#192c48}.pair strong{display:block}.pair small{color:var(--muted)}.price{text-align:right;font-weight:700}.change{font-size:12px}.chart-wrap{margin-top:14px;background:#0e1727;border:1px solid var(--line);border-radius:13px;padding:12px}.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.chart-head strong{font-size:14px}canvas{width:100%;height:210px;display:block}
+label{display:block;font-size:12px;color:var(--muted);margin:13px 0 6px}select,input{width:100%;background:#0c1524;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;outline:none}select:focus,input:focus{border-color:var(--blue)}.trade-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.btn{border:0;border-radius:10px;padding:12px;font-weight:800;font-size:14px;cursor:pointer}.buy{background:var(--green);color:#062115}.sell{background:var(--red);color:#300711}.secondary{background:#21324b;color:var(--text);margin-top:12px;width:100%}.note{font-size:12px;color:var(--muted);margin-top:12px}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:500px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line);font-size:12px}th{color:var(--muted);font-weight:600}.empty{text-align:center;color:var(--muted);padding:22px 8px}
+footer{max-width:1180px;margin:auto;padding:0 18px 28px;color:var(--muted);font-size:12px}
+.toast{margin-top:12px;font-size:13px;color:#cfe3ff;min-height:18px}
+@media(max-width:760px){.intro{display:block}.warning{display:inline-block;margin-top:12px}.stats{grid-template-columns:1fr}.stats .card{padding:14px}.layout{grid-template-columns:1fr}header{padding:14px 18px}main{padding-top:18px}.value{font-size:24px}}
+</style>
+</head>
+<body>
+<header><div class="brand">Cashboost <span>Forex</span></div><div class="tag">DEMO ACCOUNT · VIRTUAL FUNDS</div></header>
+<main>
+  <div class="intro"><div><h1>Trading dashboard</h1><div class="muted">Practise your strategy. Learn the market.</div></div><div class="warning">Demo only — prices are illustrative, not live market quotes.</div></div>
+  <section class="stats">
+    <div class="card"><div class="label">Virtual balance</div><div class="value" id="balance">$10,000.00</div></div>
+    <div class="card"><div class="label">Open trade P/L</div><div class="value" id="openPL">$0.00</div></div>
+    <div class="card"><div class="label">Closed trade P/L</div><div class="value" id="closedPL">$0.00</div></div>
+  </section>
+  <div class="layout">
+    <section class="card">
+      <h2 class="section-title">Market watch</h2>
+      <div class="pair-list" id="pairs"></div>
+      <div class="chart-wrap">
+        <div class="chart-head"><strong id="chartPair">EUR/USD</strong><span class="muted" id="chartCaption">Illustrative price movement</span></div>
+        <canvas id="chart" aria-label="Illustrative forex price chart"></canvas>
+      </div>
+    </section>
+    <section class="card">
+      <h2 class="section-title">Place a demo trade</h2>
+      <div class="muted" style="font-size:13px">Choose a pair and trade size. No real money is used.</div>
+      <label for="selectedPair">Currency pair</label><select id="selectedPair"></select>
+      <label for="direction">Trade direction</label><select id="direction"><option value="buy">Buy (price rises)</option><option value="sell">Sell (price falls)</option></select>
+      <label for="units">Units (demo)</label><input id="units" type="number" min="100" step="100" value="1000">
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-top:13px;font-size:13px"><span class="muted">Illustrative entry price</span><strong id="entryPrice">1.08420</strong></div>
+      <div class="trade-buttons"><button class="btn buy" id="buyBtn">Buy</button><button class="btn sell" id="sellBtn">Sell</button></div>
+      <button class="btn secondary" id="resetBtn">Reset demo account</button>
+      <div class="toast" id="message" role="status"></div>
+      <p class="note">Simplified learning model: no leverage, spreads, fees, stop-loss, or live quotes. Each trade is a simulation only.</p>
+    </section>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <h2 class="section-title">Your trades</h2>
+    <div class="table-wrap"><table><thead><tr><th>Pair</th><th>Side</th><th>Units</th><th>Entry</th><th>Current</th><th>Unrealized P/L</th><th>Action</th></tr></thead><tbody id="trades"><tr><td colspan="7" class="empty">No open trades yet. Place a demo trade to begin.</td></tr></tbody></table></div>
+  </section>
+</main>
+<footer>Cashboost Forex demo • This is educational software, not financial advice or a brokerage service. All prices and balances are simulated locally in this browser.</footer>
+<script>
+const seed=[
+ {pair:"EUR/USD",price:1.08420,change:0.12,base:1.08420},
+ {pair:"GBP/USD",price:1.27140,change:-0.08,base:1.27140},
+ {pair:"USD/JPY",price:149.620,change:0.21,base:149.620},
+ {pair:"USD/CHF",price:0.88410,change:-0.04,base:0.88410},
+ {pair:"AUD/USD",price:0.66180,change:0.07,base:0.66180}
+];
+let markets=seed.map(x=>({...x})), balance=10000, closedPL=0, nextId=1, trades=[];
+const $=id=>document.getElementById(id);
+const money=n=>(n<0?"-$":"$")+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+function currentPair(){return $("selectedPair").value||markets[0].pair}
+function market(pair){return markets.find(m=>m.pair===pair)}
+function pl(t){return (market(t.pair).price-t.entry)*(t.side==="buy"?1:-1)*t.units}
+function setPL(el,n){el.textContent=money(n);el.className="value "+(n>0?"green":n<0?"red":"")}
+function renderMarkets(){
+ $("pairs").innerHTML=markets.map(m=>`<button class="pair ${m.pair===currentPair()?"active":""}" data-pair="${m.pair}"><span><strong>${m.pair}</strong><small>${m.pair.replace("/"," / ")}</small></span><span class="price">${m.price.toFixed(m.pair.endsWith("JPY")?3:5)}<span class="change ${m.change>=0?"green":"red"}">${m.change>=0?"+":""}${m.change.toFixed(2)}%</span></span></button>`).join("");
+ document.querySelectorAll(".pair").forEach(b=>b.onclick=()=>{$("selectedPair").value=b.dataset.pair;renderAll()});
+}
+function renderSelect(){
+ const old=$("selectedPair").value;
+ $("selectedPair").innerHTML=markets.map(m=>`<option value="${m.pair}">${m.pair}</option>`).join("");
+ if(markets.some(m=>m.pair===old))$("selectedPair").value=old;
+}
+function renderTrades(){
+ const open=trades.reduce((s,t)=>s+pl(t),0);
+ setPL($("openPL"),open);setPL($("closedPL"),closedPL);$("balance").textContent=money(balance);
+ if(!trades.length){$("trades").innerHTML='<tr><td colspan="7" class="empty">No open trades yet. Place a demo trade to begin.</td></tr>';return}
+ $("trades").innerHTML=trades.map(t=>{let p=pl(t),m=market(t.pair);return `<tr><td><strong>${t.pair}</strong></td><td class="${t.side==="buy"?"green":"red"}">${t.side.toUpperCase()}</td><td>${t.units.toLocaleString()}</td><td>${t.entry.toFixed(t.pair.endsWith("JPY")?3:5)}</td><td>${m.price.toFixed(t.pair.endsWith("JPY")?3:5)}</td><td class="${p>=0?"green":"red"}">${money(p)}</td><td><button class="btn secondary close-trade" data-id="${t.id}" style="margin:0;padding:7px 10px;width:auto">Close</button></td></tr>`}).join("");
+ document.querySelectorAll(".close-trade").forEach(b=>b.onclick=()=>closeTrade(Number(b.dataset.id)));
+}
+function renderChart(){
+ const canvas=$("chart"),ctx=canvas.getContext("2d"),rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+ canvas.width=rect.width*dpr;canvas.height=210*dpr;ctx.scale(dpr,dpr);
+ const w=rect.width,h=210,pad=12,pts=42,arr=[];let p=market(currentPair()).price;
+ const amp=p*(currentPair().endsWith("JPY")?.0012:.0011);
+ for(let i=0;i<pts;i++){p+=(Math.random()-.49)*amp*.42;arr.push(p)}
+ arr[arr.length-1]=market(currentPair()).price;
+ const min=Math.min(...arr),max=Math.max(...arr),y=v=>h-pad-(v-min)/(max-min||1)*(h-pad*2),x=i=>pad+i*(w-pad*2)/(pts-1);
+ ctx.strokeStyle="#26364e";ctx.lineWidth=1;
+ for(let i=0;i<5;i++){let yy=pad+i*(h-pad*2)/4;ctx.beginPath();ctx.moveTo(pad,yy);ctx.lineTo(w-pad,yy);ctx.stroke()}
+ ctx.beginPath();arr.forEach((v,i)=>i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v)));ctx.strokeStyle="#39d98a";ctx.lineWidth=2;ctx.stroke();
+ ctx.lineTo(x(pts-1),h-pad);ctx.lineTo(x(0),h-pad);ctx.closePath();ctx.fillStyle="rgba(57,217,138,.08)";ctx.fill();
+ $("chartPair").textContent=currentPair()+" · "+market(currentPair()).price.toFixed(currentPair().endsWith("JPY")?3:5);
+}
+function renderAll(){renderMarkets();renderTrades();$("entryPrice").textContent=market(currentPair()).price.toFixed(currentPair().pair.endsWith("JPY")?3:5);renderChart()}
+function placeTrade(side){
+ const pair=currentPair(),units=Number($("units").value),m=market(pair);
+ if(!Number.isFinite(units)||units<100||units>1000000){$("message").textContent="Enter between 100 and 1,000,000 demo units.";return}
+ // Demo margin check uses notional exposure as a simple safety cap.
+ const notional=units*m.price;
+ if(notional>balance*20){$("message").textContent="Trade too large for this demo balance. Try fewer units.";return}
+ trades.push({id:nextId++,pair,side,units,entry:m.price});
+ $("message").textContent=`Demo ${side} opened: ${units.toLocaleString()} units of ${pair}.`;
+ renderAll();
+}
+function closeTrade(id){
+ const i=trades.findIndex(t=>t.id===id);if(i<0)return;
+ const t=trades[i],profit=pl(t);closedPL+=profit;balance+=profit;trades.splice(i,1);
+ $("message").textContent=`Demo trade closed. Simulated P/L: ${money(profit)}.`;
+ renderAll();
+}
+$("selectedPair").addEventListener("change",renderAll);
+$("buyBtn").onclick=()=>placeTrade("buy");$("sellBtn").onclick=()=>placeTrade("sell");
+$("resetBtn").onclick=()=>{if(confirm("Reset the demo balance and remove all trades?")){balance=10000;closedPL=0;trades=[];nextId=1;markets=seed.map(x=>({...x}));$("message").textContent="Demo account reset.";renderAll()}};
+renderSelect();renderAll();
+</script>
+</body>
+</html>
